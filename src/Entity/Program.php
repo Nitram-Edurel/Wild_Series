@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ProgramRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -28,40 +30,25 @@ class Program
     private $summary;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=255)
      */
     private $poster;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    
-
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class)
+     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="programs")
      * @ORM\JoinColumn(nullable=false)
      */
     private $category;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\OneToMany(targetEntity=Season::class, mappedBy="program", orphanRemoval=true)
      */
-    private $synopsis;
+    private $seasons;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $country;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $year;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $category_id;
+    public function __construct()
+    {
+        $this->seasons = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -88,79 +75,49 @@ class Program
     public function setSummary(string $summary): self
     {
         $this->summary = $summary;
-
         return $this;
     }
-
     public function getPoster(): ?string
     {
         return $this->poster;
     }
-
-    public function setPoster(?string $poster): self
+    public function setPoster(string $poster): self
     {
         $this->poster = $poster;
-
         return $this;
     }
-
     public function getCategory(): ?Category
     {
         return $this->category;
     }
-
     public function setCategory(?Category $category): self
     {
         $this->category = $category;
-
         return $this;
     }
-
-    public function getSynopsis(): ?string
+    /**
+     * @return Collection|Season[]
+     */
+    public function getSeasons(): Collection
     {
-        return $this->synopsis;
+        return $this->seasons;
     }
-
-    public function setSynopsis(string $synopsis): self
+    public function addSeason(Season $season): self
     {
-        $this->synopsis = $synopsis;
-
+        if (!$this->seasons->contains($season)) {
+            $this->seasons[] = $season;
+            $season->setProgram($this);
+        }
         return $this;
     }
-
-    public function getCountry(): ?string
+    public function removeSeason(Season $season): self
     {
-        return $this->country;
-    }
-
-    public function setCountry(string $country): self
-    {
-        $this->country = $country;
-
-        return $this;
-    }
-
-    public function getYear(): ?int
-    {
-        return $this->year;
-    }
-
-    public function setYear(int $year): self
-    {
-        $this->year = $year;
-
-        return $this;
-    }
-
-    public function getCategoryId(): ?int
-    {
-        return $this->category_id;
-    }
-
-    public function setCategoryId(int $category_id): self
-    {
-        $this->category_id = $category_id;
-
+        if ($this->seasons->removeElement($season)) {
+            // set the owning side to null (unless already changed)
+            if ($season->getProgram() === $this) {
+                $season->setProgram(null);
+            }
+        }
         return $this;
     }
 }

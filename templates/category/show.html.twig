@@ -1,38 +1,20 @@
-{% extends 'base.html.twig' %}
-
-
-{% block title %}
-	{{ category.name }}
-{% endblock %}
+{% extends "base.html.twig" %}
+{% block title %} Catégorie {{ categoryName }}{% endblock %}
 
 {% block body %}
+{% for program in programs %}
 
-	{% if programs is not empty %}
-		{% for program in programs %}
+<ul>
+    <li> {{ program.id }} </li>
+    <li> {{ program.title }} </li>
+    <Li>{{ program.summary }}</Li>
+</ul>
+<a href="{{ path('program_show', { id: program.id }) }}">Voir la fiche</a>
 
-			<div class="media">
+{% else %}
+Aucune série trouvé
+{% endfor %}
 
-				<img class="align-self-start mr-3" src="{{program.poster}}" alt="{{ program.title }} poster">
+<a href="{{ path('category_index') }}">Retour à la liste de la catégorie</a>
 
-				<div class="media-body">
-
-					<h1 class="mt-0">{{ program.id }}
-						-
-						{{ program.title}}</h1>
-
-					<p>{{ program.summary }}</p>
-
-					<a href="{{ path("program_show", { id: program.id}) }}">Voir la fiche</a>
-
-				</div>
-			</div>
-		{% endfor %}
-	{% else %}
-		<p>
-			Aucune série trouvée</p>
-	{% endif %}
-
-	<a href="{{ path('program_index') }}">Retour à la liste des programmes
-	</a>
-    
 {% endblock %}

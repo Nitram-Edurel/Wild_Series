@@ -25,7 +25,8 @@ public function index(): Response
             ->getRepository(Category::class)
             ->findAll();
 
-        return $this->render('category/index.html.twig', [
+        return $this->render(
+            '/category/index.html.twig', [
             'categories' => $categories
         ]);
     }
@@ -53,7 +54,7 @@ public function index(): Response
 
             return $this->render('category/show.html.twig', [
                 'categoryName' => $categoryName,
-                'programs' => $programs
+                'programs' => $programs, 
             ]);
         }
     }

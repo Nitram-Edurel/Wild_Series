@@ -1,36 +1,32 @@
 <?php
+
 // src/Controller/ProgramController.php
+
 namespace App\Controller;
 
+use App\Entity\Episode;
 use App\Entity\Program;
+use App\Entity\Season;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+
 
 /**
  * @Route("/program", name="program_")
  */
 class ProgramController extends AbstractController
 {
-
     /**
-     * Show all rows from Program's entity 
-     * 
+     * Show all rows from Program’s entity
+     *
      * @Route("/", name="index")
      * @return Response A response instance
      */
     public function index(): Response
     {
-        $programs = $this->getDoctrine()
-            ->getRepository(Program::class)
-            ->findAll();
-
-        return $this->render(
-            'program/index.html.twig',
-            [
-                'programs' => $programs
-            ]
-        );
+        $programs = $this->getDoctrine()->getRepository(Program::class)->findAll();
+        return $this->render('/program/index.html.twig', ['programs' => $programs]);
     }
 
     /**
@@ -42,33 +38,29 @@ class ProgramController extends AbstractController
 
     public function show(int $id): Response
     {
-        $program = $this->getDoctrine()
-            ->getRepository(Program::class)
-            ->findOneBy(['id' => $id]);
-
-
+        $program = $this->getDoctrine()->getRepository(Program::class)->findOneBy(['id' => $id]);
         if (!$program) {
             throw $this->createNotFoundException(
                 'No program with id : ' . $id . ' found in program\'s table.'
             );
         }
         $seasons = $this->getDoctrine()->getRepository(Season::class)->findBy(['program' => $program], ['number' => 'ASC']);
-        if(!$seasons){
+        if (!$seasons) {
             throw $this->createNotFoundException(
                 'No program found . '
             );
         }
         return $this->render('program/show.html.twig', [
             'program' => $program,
-            'season' => $seasons,
+            'seasons' => $seasons,
         ]);
     }
 
     /**
      * Getting a program by seasonid
-     * 
-     * Route("/{programId}/seasons/{seasonId}", name="season_show")
-     * @return Response 
+     *
+     * @Route("/{programId}/seasons/{seasonId} ", name="season_show")
+     * @return Response
      */
     public function showSeason(int $programId, int $seasonId): Response
     {
