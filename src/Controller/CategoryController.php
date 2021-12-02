@@ -52,8 +52,8 @@ public function index(): Response
                 ->findBy(['category' => $category], ['id' => 'DESC'], 3);
 
             return $this->render('category/show.html.twig', [
-                'programs' => $programs, 'category' => $category
-
+                'categoryName' => $categoryName,
+                'programs' => $programs
             ]);
         }
     }
