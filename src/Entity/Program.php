@@ -6,9 +6,12 @@ use App\Repository\ProgramRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProgramRepository::class)
+ * @UniqueEntity("title")
  */
 class Program
 {
@@ -21,16 +24,19 @@ class Program
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Ne me laisse pas tout vide")
+     * @Assert\Length(max="255", maxMessage="Le titre saisi {{ value }} est trop long, il ne devrait pas dépasser {{ limit }} caractères")
      */
     private $title;
 
     /**
      * @ORM\Column(type="text")
+     * @Assert\NotBlank(message="Ne me laisse pas tout vide")
      */
     private $summary;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $poster;
 
@@ -41,7 +47,7 @@ class Program
     private $category;
 
     /**
-     * @ORM\OneToMany(targetEntity=Season::class, mappedBy="program", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Season::class, mappedBy="program")
      */
     private $seasons;
 
@@ -75,26 +81,34 @@ class Program
     public function setSummary(string $summary): self
     {
         $this->summary = $summary;
+
         return $this;
     }
+
     public function getPoster(): ?string
     {
         return $this->poster;
     }
-    public function setPoster(string $poster): self
+
+    public function setPoster(?string $poster): self
     {
         $this->poster = $poster;
+
         return $this;
     }
+
     public function getCategory(): ?Category
     {
         return $this->category;
     }
+
     public function setCategory(?Category $category): self
     {
         $this->category = $category;
+
         return $this;
     }
+
     /**
      * @return Collection|Season[]
      */
@@ -102,14 +116,17 @@ class Program
     {
         return $this->seasons;
     }
+
     public function addSeason(Season $season): self
     {
         if (!$this->seasons->contains($season)) {
             $this->seasons[] = $season;
             $season->setProgram($this);
         }
+
         return $this;
     }
+
     public function removeSeason(Season $season): self
     {
         if ($this->seasons->removeElement($season)) {
@@ -118,6 +135,7 @@ class Program
                 $season->setProgram(null);
             }
         }
+
         return $this;
     }
 }
