@@ -1,61 +1,86 @@
 <?php
-// src/Controller/CategoryController.php
+
+// src/Controller/ProgramController.php
+
 namespace App\Controller;
 
 use App\Entity\Category;
 use App\Entity\Program;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Form\CategoryType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
  * @Route("/category", name="category_")
  */
-
 class CategoryController extends AbstractController
 {
     /**
+     * Show all rows from Category’s entity
+     *
      * @Route("/", name="index")
-     * @return Response
+     * @return Response A response instance
      */
-public function index(): Response
+    public function index(): Response
     {
-
-        $categories = $this->getDoctrine()
-            ->getRepository(Category::class)
-            ->findAll();
-
-        return $this->render(
-            '/category/index.html.twig', [
-            'categories' => $categories
-        ]);
+        $categories = $this->getDoctrine()->getRepository(Category::class)->findAll();
+        return $this->render('/category/index.html.twig', ['categories' => $categories]);
     }
     /**
-     * @Route("/show/{categoryName}", name="show")
+     * The controller for the category add form
+     * Display the form or deal with it
+     *
+     * @Route("/new", name="new")
+     */
+    public function new(Request $request): Response
+    {
+        $category = new Category();
+        $form = $this->createForm(CategoryType::class, $category);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+
+            // Deal with the submitted data
+            // Get the Entity Manager
+            $entityManager = $this->getDoctrine()->getManager();
+            // Persist Category Object
+            $entityManager->persist($category);
+            // Flush the persisted object
+            $entityManager->flush();
+            // Finally redirect to categories list
+
+            return $this->redirectToRoute('category_index');
+        }
+        return $this->render('category/new.html.twig', ["form" => $form->createView(),]);
+    }
+    /**
+     * Getting a category by name
+     *
+     * @Route("/{categoryName}", name="show")
      * @return Response
      */
-
     public function show(string $categoryName): Response
     {
-
-        $category = $this->getDoctrine()
-            ->getRepository(Category::class)
-            ->findOneBy(['name' => $categoryName]);
+        $category = $this->getDoctrine()->getRepository(Category::class)->findBy(['name' => $categoryName]);
 
         if (!$category) {
             throw $this->createNotFoundException(
-                'No category with name : ' . $categoryName . ' found in category\'s tbale.'
+                'No category with name : ' . $categoryName
             );
-        } else {
-
-            $programs = $this->getDoctrine()
-                ->getRepository(Program::class)
-                ->findBy(['category' => $category], ['id' => 'DESC'], 3);
-
-            return $this->render('category/show.html.twig', [
-                'categoryName' => $categoryName,
-                'programs' => $programs, 
-            ]);
         }
+        $programs = $this->getDoctrine()->getRepository(Program::class)->findBy(['category' => $category], ['id' => 'DESC'], $limit = 3);
+
+        if (!$programs) {
+            throw $this->createNotFoundException(
+                'No program with name : ' . $categoryName
+            );
+        }
+
+        return $this->render('/category/show.html.twig', [
+            'categoryName' => $categoryName,
+            'programs' => $programs
+        ]);
     }
 }
