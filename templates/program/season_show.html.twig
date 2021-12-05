@@ -28,6 +28,9 @@
 					<div class="card-header">
 						<h3 class="card-title">Episode :
 							{{ episode.number }}</h3>
+						<a href="{{ path('program_episode_show',{programId: program.id, seasonId: season.id, episodeId: episode.id }) }}">
+							en savoir plus
+						</a>
 					</div>
 					<div class="card-body">
 						<h4 class="card-title">Titre :
