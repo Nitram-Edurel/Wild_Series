@@ -39,13 +39,12 @@ class CategoryController extends AbstractController
         $category = new Category();
         $form = $this->createForm(CategoryType::class, $category);
         $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-
+        
+        if ($form->isSubmitted()) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($category);
             $entityManager->flush();
-
+            
             return $this->redirectToRoute('category_index');
         }
         return $this->render('category/new.html.twig', ["form" => $form->createView(),]);
@@ -59,20 +58,20 @@ class CategoryController extends AbstractController
     public function show(string $categoryName): Response
     {
         $category = $this->getDoctrine()->getRepository(Category::class)->findBy(['name' => $categoryName]);
-
+        
         if (!$category) {
             throw $this->createNotFoundException(
                 'No category with name : ' . $categoryName
             );
         }
         $programs = $this->getDoctrine()->getRepository(Program::class)->findBy(['category' => $category], ['id' => 'DESC'], $limit = 3);
-
+        
         if (!$programs) {
             throw $this->createNotFoundException(
                 'No program with name : ' . $categoryName
             );
         }
-
+        
         return $this->render('/category/show.html.twig', [
             'categoryName' => $categoryName,
             'programs' => $programs

@@ -14,6 +14,8 @@ class ActorController extends AbstractController
  */
 {
     /**
+     * Show all rows from Actor’s entity
+     *
      * @Route("/", name="index")
      * @return Response A response instance
      */
