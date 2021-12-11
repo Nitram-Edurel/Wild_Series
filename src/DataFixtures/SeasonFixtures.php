@@ -6,6 +6,7 @@ use App\Entity\Season;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use App\Service\Slugify;
 
 class SeasonFixtures extends Fixture implements DependentFixtureInterface
 {
@@ -41,6 +42,13 @@ class SeasonFixtures extends Fixture implements DependentFixtureInterface
             'number' => '5',
         ],
     ];
+
+        
+    public function __construct(Slugify $slugify)
+    {
+        $this->slugify = $slugify;
+    }
+
     public function load(ObjectManager $manager): void
     {
         foreach (self::SEASONS as $key => $show) {

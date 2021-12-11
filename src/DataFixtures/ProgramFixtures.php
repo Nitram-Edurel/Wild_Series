@@ -6,10 +6,13 @@ use App\Entity\Program;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use App\Service\Slugify;
 
 class ProgramFixtures extends Fixture implements DependentFixtureInterface
 {
-    const PROGRAMS = [
+    private $slugify;
+
+    public const PROGRAMS = [
         [
             'title' => 'Fargo',
             'synopsis' => 'En 2006, à Bemidji dans le Minnesota, Lester Nygaard, interprété par Martin Freeman, est un homme effacé et sans envergure travaillant pour une compagnie d\'assurance. Sa vie bascule le jour où il décide de se confier à un homme, Lorne Malvo, interprété par Billy Bob Thornton, qui se révèle être un tueur à gages. Celui-ci tue un certain Sam Hess, qui, dans sa jeunesse, harcelait Lester au lycée. Un mensonge en entraînant un autre, Lester va radicalement changer de vie et extérioriser sa véritable personnalité, celle d\'un manipulateur prêt à tout pour être accepté par une société qui l\'a trop longtemps ignoré.',
@@ -48,6 +51,12 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
 
 
     ];
+
+    public function __construct(Slugify $slugify)
+    {
+        $this->slugify = $slugify;
+    }
+
     public function load(ObjectManager $manager)
     {
         foreach (self::PROGRAMS as $key => $show) {
@@ -60,6 +69,8 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
             for ($i = 0; $i < count($show['actors']); $i++) {
                 $program->addActor($this->getReference($show['actors'][$i]));
             }
+            $slug = $this->slugify->generate($program->getTitle());
+            $program->setSlug($slug);
 
             $manager->persist($program);
             $this->addReference('program_' . $key, $program);
@@ -67,6 +78,7 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
 
         $manager->flush();
     }
+
     public function getDependencies()
     {
         return [

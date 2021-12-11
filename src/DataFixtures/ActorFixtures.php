@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\Actor;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use App\Service\Slugify;
 
 class ActorFixtures extends Fixture
 {
@@ -19,6 +20,12 @@ class ActorFixtures extends Fixture
         'Rain Wilson',
         'BJ Novak',
     ];
+    
+    public function __construct(Slugify $slugify)
+    {
+        $this->slugify = $slugify;
+    }
+
     public function load(ObjectManager $manager)
     {
         foreach (self::ACTORS as $key => $actorName) {

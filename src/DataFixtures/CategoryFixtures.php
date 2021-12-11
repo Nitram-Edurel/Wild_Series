@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\Category;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use App\Service\Slugify;
 
 class CategoryFixtures extends Fixture
 {
@@ -24,7 +25,11 @@ class CategoryFixtures extends Fixture
         'Cyberpunk',
         'Thriller',
     ];
-    
+        
+    public function __construct(Slugify $slugify)
+    {
+        $this->slugify = $slugify;
+    }
     
     public function load(ObjectManager $manager)
     {

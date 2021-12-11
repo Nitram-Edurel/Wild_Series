@@ -1,29 +1,26 @@
-{% extends "base.html.twig" %}
+{% extends 'base.html.twig' %}
 
-{% block title %}All programs
+{% block title %}Séries
 {% endblock %}
 
 {% block body %}
-	<h1>Toutes les séries de la table program :
-	</h1>
-
-	<main class="container-fluid">
-		<div class="card">
+	<h1 class="text-center m-3 text-secondary">On regarde quoi ce soir ?</h1>
+	<main class="container">
+		<div class="row justify-content-center d-flex">
 			{% for program in programs %}
-				<div class="card-body">
-					<h2>{{ loop.index }}
-						/
-						{{ program.title }}
-						- Catégorie :
-						{{ program.category.name }}</h2>
-					<p>{{ program.summary }}</p>
-					{# Lien vers la fiche de la série : #}
-					<a class="text-dark" href="{{ path('program_show', { id: program.id }) }}">Voir la fiche</a>
-				{% else %}
-					Aucune série trouvée.
-				</div>
+					<div class="card programCard col-lg-3 mx-4 rounded d-flex p-0 bg-dark">
+						<img class="cardImg card-img-top rounded-top bg-white" src="{{ program.poster }}" alt="">
+						<h2 class="text-light px-2">{{ program.title }}</h2>
+						<h3 class="text-light px-2">{{ program.category.name }}</h3>
+						<p class="text-light px-2">{{ program.summary }}</p>
+						<a class="btn bnt-mb bg-secondary text-light" href="{{ path("program_show", { slug: program.slug }) }}">Voir la fiche</a>
+					</div>
+			{% else %}
+				Aucune série trouvée.
 			{% endfor %}
 		</div>
 	</main>
-	<a href="{{ path('app_index') }}" class="btn btn-primary">Retour à l'accueil</a>
+	<a class="btn bg-primary text-light" href="{{ path('app_index') }}">
+		Retour à l'accueil
+	</a>
 {% endblock %}
