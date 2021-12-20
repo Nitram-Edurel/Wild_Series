@@ -1,12 +1,17 @@
 {% extends "layoutEmail.html.twig" %}
 
 {% block body %}
-		<h1>New program
+	<main class="container">
+		<row class="header">
+			<h1 class="text-center">Bienvenue !</h1>
+		</columns>
+		<h1>
 			{{ program.title }}
-			created</h1>
-		<p>Hello, the new program
+			vient d'être ajouté</h1>
+		<p>Bonjour, la série
 			{{ program.title }}
-			has been created on Wild Series</p>
-		<p>Summary :{{program.summary }}
+			vient d'être ajouté sur Wild Série</p>
+		<p>Résumé :{{program.summary }}
 		</p>
+	</main>
 {% endblock %}

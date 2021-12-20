@@ -14,7 +14,7 @@
 				</li>
 				<li class="nav-item">
 					<a class="nav-link active" href="http://localhost:8000/season/" role="button">
-					Saison
+						Saison
 					</a>
 				</li>
 				<li class="nav-item">
@@ -24,13 +24,21 @@
 				</li>
 				<li class="nav-item">
 					<a class="nav-link active" href="http://localhost:8000/season/new" role="button">
-						Nouvelle saison 
-					</a>
-					<li class="nav-item">
+						Nouvelle saison</a>
+				</li>
+				<li class="nav-item">
 					<a class="nav-link active" href="http://localhost:8000/program/new" role="button">
 						Nouveau programme
 					</a>
 				</li>
+				{% if app.user %}
+					{{ app.user.email }}
+					<a href="{{ path('app_logout') }}">
+						Se déconnecter</a>
+				{% else %}
+					<a href="{{ path('login') }}">
+						Se connecter</a>
+				{% endif %}
 			</ul>
 		</div>
 	</div>

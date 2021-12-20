@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Episode;
 use App\Form\EpisodeType;
+use App\Form\CommentType;
 use App\Repository\EpisodeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Service\Slugify;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use App\Entity\Comment;
 
 /**
  * @Route("/episode")
@@ -29,11 +31,41 @@ class EpisodeController extends AbstractController
         ]);
     }
 
+
+    /**
+     * @Route("/{slug}/comment/new", name="comment_new", methods={"GET","POST"})
+     */
+
+    public function newComment(Request $request, Episode $episode): Response
+    {
+        $comment = new Comment();
+        $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($comment);
+            $comment->setAuthor($this->getUser());
+            $comment->setEpisode($episode);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('program_index');
+        }
+
+        return $this->render('program/newComment.html.twig', [
+            'comment' => $comment,
+            'form' => $form->createView(),
+        ]);
+    }
+
     /**
      * @Route("/new", name="episode_new", methods={"GET", "POST"})
      */
-    public function new(Request $request, EntityManagerInterface $entityManager, Slugify $slugify, MailerInterface $mailer): Response
-    {
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        Slugify $slugify,
+        MailerInterface $mailer
+    ): Response {
         $episode = new Episode();
         $form = $this->createForm(EpisodeType::class, $episode);
         $form->handleRequest($request);
@@ -45,10 +77,10 @@ class EpisodeController extends AbstractController
             $entityManager->flush();
 
             $email = (new Email())
-                ->from('your_email@example.com')
+                ->from($this->getParameter('mailer_from'))
                 ->to('your_email@example.com')
-                ->subject('Une nouvelle série vient d\'être publiée !')
-                ->html($this->renderView('episode/newEpisodeEmail.html.twig',['episode' => $episode]));
+                ->subject('Un nouvel épisode vient d\'être publié !')
+                ->html($this->renderView('episode/newEpisodeEmail.html.twig', ['episode' => $episode]));
 
             $mailer->send($email);
 
@@ -66,7 +98,7 @@ class EpisodeController extends AbstractController
      */
     public function show(Episode $episode): Response
     {
-        return $this->render('episode/show.html.twig', [
+        return $this->render('program/episode_show.html.twig', [
             'episode' => $episode,
         ]);
     }
@@ -74,8 +106,12 @@ class EpisodeController extends AbstractController
     /**
      * @Route("/{slug}/edit", name="episode_edit", methods={"GET", "POST"})
      */
-    public function edit(Request $request, Episode $episode, EntityManagerInterface $entityManager, Slugify $slugify): Response
-    {
+    public function edit(
+        Request $request,
+        Episode $episode,
+        EntityManagerInterface $entityManager,
+        Slugify $slugify
+    ): Response {
         $form = $this->createForm(EpisodeType::class, $episode);
         $form->handleRequest($request);
 
