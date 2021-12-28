@@ -1,14 +1,25 @@
 {% extends 'base.html.twig' %}
 
 
-{% block title %}Episode {{season.number}}{% endblock %}
+{% block title %}Episode
+	{{episode.number}}
+{% endblock %}
 
 {% block body %}
+	{% if is_granted("ROLE_ADMIN") %}
 
-<ul>
-    <li> Episode : {{ episode.number }} </li>
-    <li> {{ episode.title }} </li>
-    <Li>{{ episode.synopsis }}</Li>
-</ul>
+		<a href="{{ path('program_edit', { 'slug': program.slug} ) }}">Éditer</a>
 
-{% endblock %}
+		{% endif %}
+		<ul>
+			<li>
+				Episode :
+				{{ episode.number }}
+			</li>
+			<li>
+				{{ episode.title }}
+			</li>
+			<Li>{{ episode.synopsis }}</Li>
+		</ul>
+
+	{% endblock %}

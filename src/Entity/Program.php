@@ -71,11 +71,22 @@ class Program
      */
     private $slug;
 
+    /**
+     * @ORM\OneToMany(targetEntity=User::class, mappedBy="owner")
+     */
+    private $users;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="User")
+     */
+    private $owner;
+
 
     public function __construct()
     {
         $this->seasons = new ArrayCollection();
         $this->actors = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
 
@@ -209,6 +220,49 @@ class Program
     public function setSlug(string $slug): self
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->removeElement($user)) {
+            // set the owning side to null (unless already changed)
+            if ($user->getOwner() === $this) {
+                $user->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): self
+    {
+        $this->owner = $owner;
 
         return $this;
     }

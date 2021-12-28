@@ -3,7 +3,7 @@
 // src/Controller/ProgramController.php
 namespace App\Controller;
 
-use App\Entity\Episode;
+use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -57,13 +57,14 @@ class ProgramController extends AbstractController
             $slug = $slugify->generate($program->getTitle());
             $program->setSlug($slug);
             $entityManager->persist($program);
+            $program->setOwner($this->getUser());
             $entityManager->flush();
 
             $email = (new Email())
                 ->from($this->getParameter('mailer_from'))
                 ->to('your_email@example.com')
                 ->subject('Une nouvelle série vient d\'être publiée !')
-                ->html($this->renderView('Program/newProgramEmail.html.twig', ['program' => $program]));
+                ->html($this->renderView('program/newProgramEmail.html.twig', ['program' => $program]));
 
             $mailer->send($email);
 
@@ -124,31 +125,16 @@ class ProgramController extends AbstractController
         );
     }
 
-    // /**
-    // * Getting an episode for a season by id
-    //  *
-    //  * @Route("/{slug}/season/{season<^[0-9]+$>}/{slug}", name="episode_show")
-    //  */
-
-
-    // public function showEpisode(Program $program, Season $season, Episode $episode): Response
-    //{
-
-    //     return $this->render(
-    //         'program/episode_show.html.twig',
-    //         [
-    //          'episode' => $episode,
-    //             'program' => $program,
-    //             'season' => $season,
-    //         ]
-    //     );
-    // }
-
     /**
-     * @Route("/{id}/edit", name="program_edit", methods={"GET", "POST"})
+     * @Route("/{slug}/edit", name="edit", methods={"GET", "POST"})
      */
+
     public function edit(Request $request, Program $program, EntityManagerInterface $entityManager): Response
     {
+        if (!($this->getUser() == $program->getOwner())) {
+            throw new AccessDeniedException('Only the owner can edit the program!');
+        }
+
         $form = $this->createForm(ProgramType::class, $program);
         $form->handleRequest($request);
 
